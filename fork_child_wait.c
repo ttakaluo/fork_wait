@@ -1,8 +1,6 @@
-// A simple forking example.
-
 #include <sys/types.h>	// fork, getpid, getppid
 #include <sys/wait.h>   // wait
-#include <stdlib.h>     // abort
+#include <stdlib.h>	// exit
 #include <unistd.h>	// fork, getpid, getppid, sleep
 #include <time.h>       // time seed for random
 #include <errno.h>      // error reporting
@@ -71,6 +69,7 @@ int main(int argc, char** argv){
 
 	for (i = 0; i < 3; i++) {
 	
+	//do-while loop until response found
 		do {
 			returnPid = waitpid(-1, &status, WUNTRACED | WCONTINUED );
 			if(returnPid == -1){
@@ -80,13 +79,13 @@ int main(int argc, char** argv){
 			}	
 	
 			if (WIFEXITED(status)) {
-				printf("Child with PID %d exited with status %d\n", returnPid, WEXITSTATUS(status));
+				printf("Child with PID %d exited successfully with status %d\n", returnPid, WEXITSTATUS(status));
 			}
 			else if (WIFSIGNALED(status)) {
-				printf("Child with PID %d killed by signal %d\n", returnPid, WTERMSIG(status));
+				printf("Child with PID %d was killed by signal %d\n", returnPid, WTERMSIG(status));
 			}
 			else if (WIFSTOPPED(status)) {
-				printf("Child with PID %d stopped by signal %d\n", returnPid, WSTOPSIG(status));
+				printf("Child with PID %d was stopped by signal %d\n", returnPid, WSTOPSIG(status));
 			}
 			else if (WIFCONTINUED(status)) {
 				printf("Child with PID %d continued.\n", returnPid);
