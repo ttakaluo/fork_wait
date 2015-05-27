@@ -1,3 +1,5 @@
 fork
+fork_wait
+fork_waid_id
 *.swp
 *.o

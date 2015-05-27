@@ -8,6 +8,11 @@
 #include <errno.h>      // error reporting
 #include <stdio.h>	// printf
 
+// our global variable
+static int globalData = 0;
+
+// Display PID-data, modify global data, sleep and redisplay
+
 // @Param processCount will be displayed in debugging messages.
 
 int service(int processCount) {
@@ -26,25 +31,17 @@ int service(int processCount) {
 	printf("service(%.2d): waiting %d seconds\n", processCount, r);
 	sleep(r);
 
-	//Randomize exit status
-
-	srand(time(NULL));
-	r = rand()%2;
-	if (r == 0){
-	exit(EXIT_SUCCESS);
-	}
-	if (r == 1){
-	exit(EXIT_FAILURE);
-	}
-	return 1; //something failed
+	return;
 }
 
-int main(int argc, char** argv){
-	
-	pid_t childPid, returnPid;
-	int i, r, status;
+int main(int argc, char** argv)
+{
+	pid_t childPid;
+	pid_t childState;
+	int returnId;
+	int i, status, r;
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 1; i++) {
 	
 		childPid = fork();	
 		if (childPid == 0) {
@@ -61,39 +58,41 @@ int main(int argc, char** argv){
 		}
 	}
 
+
 	srand(time(NULL));
-	r = rand()%6+5;
+	//r = rand()%6+5;
+	r = rand()%1+1;
 	
 	printf("Parent waiting %d seconds\n", r);
 	sleep(r);
 
 	//Check status of children
 
-	for (i = 0; i < 3; i++) {
-	
-		do {
-			returnPid = waitpid(-1, &status, WUNTRACED | WCONTINUED );
-			if(returnPid == -1){
-				printf("Error occured\n");
-				perror("waitpid");
-				exit(EXIT_FAILURE);
-			}	
-	
-			if (WIFEXITED(status)) {
-				printf("Child with PID %d exited with status %d\n", returnPid, WEXITSTATUS(status));
-			}
-			else if (WIFSIGNALED(status)) {
-				printf("Child with PID %d killed by signal %d\n", returnPid, WTERMSIG(status));
-			}
-			else if (WIFSTOPPED(status)) {
-				printf("Child with PID %d stopped by signal %d\n", returnPid, WSTOPSIG(status));
-			}
-			else if (WIFCONTINUED(status)) {
-				printf("Child with PID %d continued.\n", returnPid);
-			}
-		}
-		while (!WIFEXITED(status) && !WIFSIGNALED(status));
-			;
+do{
+
+	returnId = waitid(childPid, &status, WUNTRACED | WCONTINUED );
+	if(returnPid == -1){
+		printf("Error occured\n");
+		perror("waitpid");
+		exit(EXIT_FAILURE);
 	}
-	return 0;
+	
+	if (WIFEXITED(status)) {
+		printf("Child exited with status %d\n", WEXITSTATUS(status));
+	}
+	else if (WIFSIGNALED(status)) {
+		printf("killed by signal %d\n", WTERMSIG(status));
+	}
+	else if (WIFSTOPPED(status)) {
+		printf("stopped by signal %d\n", WSTOPSIG(status));
+	}
+	else if (WIFCONTINUED(status)) {
+		printf("continued\n");
+	}
+	}
+while (!WIFEXITED(status) && !WIFSIGNALED(status)); {
+	exit(EXIT_SUCCESS);
+	}
 }
+
+
